@@ -4,6 +4,9 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 # Daten aus Datenbank laden
 con = duckdb.connect("../warehouse/aktien.db")
@@ -49,3 +52,31 @@ print(f"  MAE:  {mae_lr:.2f} USD")
 print(f"\nRandom Forest:")
 print(f"  RMSE: {rmse_rf:.2f} USD")
 print(f"  MAE:  {mae_rf:.2f} USD")
+
+print("Starte Plot...")
+import traceback
+try:
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.plot(y_test.values, label="Echter Kurs", color="blue")
+    ax.plot(y_pred_lr, label="Vorhersage LR", color="red", linestyle="--")
+    ax.set_title("Vorhersage vs Realität")
+    ax.legend()
+    fig.tight_layout()
+    fig.savefig("../data/vorhersage.png")
+    print("Chart gespeichert!")
+except Exception as e:
+    traceback.print_exc()
+
+import joblib
+
+# Bestes Modell speichern (Linear Regression hat besser abgeschnitten)
+joblib.dump(lr, "../model/lr_modell.pkl")
+joblib.dump(rf, "../model/rf_modell.pkl")
+print("Modelle gespeichert!")
+
+# Vorhersage für morgen
+letzter_tag = X.iloc[-1:]
+vorhersage_lr = lr.predict(letzter_tag)
+vorhersage_rf = rf.predict(letzter_tag)
+print(f"\nVorhersage morgen (LR): {vorhersage_lr[0]:.2f} USD")
+print(f"Vorhersage morgen (RF): {vorhersage_rf[0]:.2f} USD")
