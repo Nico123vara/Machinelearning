@@ -17,7 +17,9 @@ ticker = st.sidebar.selectbox("Aktie auswählen", ["AAPL", "MSFT", "NVDA", "GOOG
 # Daten laden
 @st.cache_data
 def lade_daten(ticker):
-    con = duckdb.connect("warehouse/aktien.db")
+    import os
+    db_pfad = os.path.join(os.path.dirname(__file__), "warehouse", "aktien.db")
+    con = duckdb.connect(db_pfad)
     df = con.execute(f"SELECT * FROM features WHERE Ticker = '{ticker}' ORDER BY Date").fetchdf()
     con.close()
     df["Date"] = pd.to_datetime(df["Date"])
