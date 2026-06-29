@@ -4,6 +4,7 @@ import duckdb
 import joblib
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 st.set_page_config(page_title="Aktien-Predictor", page_icon="📈", layout="wide")
 
@@ -49,7 +50,9 @@ st.pyplot(fig)
 st.subheader("Vorhersage für morgen")
 
 try:
-    modell = joblib.load("model/bestes_modell.pkl")
+    
+    modell_pfad = os.path.join(os.path.dirname(__file__), "model", "bestes_modell.pkl")
+    modell = joblib.load(modell_pfad)
     features = ["Return", "MA7", "MA30", "Lag1", "Lag2",
                 "RSI", "BB_breite", "Volumen_MA"]
     
